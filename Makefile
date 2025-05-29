@@ -1,6 +1,7 @@
 #
 
 PROJECT_ID = memory_management
+ARGS = data/1.txt worst
 
 CC = gcc
 CFLAGS = -Werror -I$(SRC_DIR)
@@ -30,7 +31,7 @@ clean:
 	rm -rf $(BUILD_DIR) $(BIN_DIR)
 
 run: $(TARGET)
-	$(TARGET)
+	$(TARGET) $(ARGS)
 
 run_asan: clean asan
-	$(TARGET)
+	$(TARGET) $(ARGS)

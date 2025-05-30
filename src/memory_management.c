@@ -14,8 +14,10 @@
 
 int mm_init(MemoryManagement* mm, StrategyType strategy) {
   mm->strategy = strategy;
+
   mm->blocks = calloc(BLOCK_COUNT, sizeof(Block));
   if (mm->blocks == NULL) {
+    fprintf(stderr, "Can't get memory for blocks.\n");
     return EXIT_FAILURE;
   }
 
@@ -76,15 +78,26 @@ int mm_start(MemoryManagement* mm, const char* filename) {
     }
 
     Command command;
-    command.name = NULL;
     if (parse_command(buffer, &command) != EXIT_SUCCESS) {
-      fprintf(stderr, "Can't parse command: %s\n", buffer);
       if (command.name != NULL) {
         free(command.name);
+        command.name = NULL;
       }
       fclose(file);
+      fprintf(stderr, "Can't parse command: %s\n", buffer);
       return EXIT_FAILURE;
     }
+
+    // Print command info
+
+    printf("Command: %s, Name: %s, Size: %zu\n",
+           command.type == CMD_ALLOC     ? "ALLOC"
+           : command.type == CMD_REALLOC ? "REALLOC"
+           : command.type == CMD_FREE    ? "FREE"
+                                         : "PRINT",
+           command.name ? command.name : "NULL", command.size);
+
+    //
 
     if (command.name != NULL) {
       free(command.name);

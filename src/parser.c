@@ -26,6 +26,9 @@ int parse_strategy(const char* arg, StrategyType* strategy) {
 }
 
 int parse_command(char* buffer, Command* command) {
+  command->size = 0;
+  command->name = NULL;
+
   char* arg1 = strtok(buffer, " \n");
   if (arg1 == NULL) {
     fprintf(stderr, "No command.\n");
@@ -48,13 +51,12 @@ int parse_command(char* buffer, Command* command) {
       return EXIT_FAILURE;
     }
 
+    command->size = strtoul(arg3, NULL, 10);
     command->name = strdup(arg2);
     if (command->name == NULL) {
       fprintf(stderr, "Can't copy name: %s\n", arg2);
       return EXIT_FAILURE;
     }
-
-    command->size = strtoul(arg3, NULL, 10);
 
     return EXIT_SUCCESS;
   }
@@ -76,7 +78,6 @@ int parse_command(char* buffer, Command* command) {
   }
 
   if (command->type == CMD_PRINT) {
-    command->name = NULL;
     return EXIT_SUCCESS;
   }
 

@@ -9,58 +9,72 @@
 #include "command.h"
 #include "parser.h"
 
-#define BLOCK_COUNT 1024
-#define BLOCK_SIZE 1024
-
-int mm_init(MemoryManagement* mm, StrategyType strategy) {
+int mm_init(MemoryManagement* mm, StrategyType strategy, size_t size) {
   mm->strategy = strategy;
+  mm->size = size;
 
-  mm->blocks = calloc(BLOCK_COUNT, sizeof(Block));
-  if (mm->blocks == NULL) {
-    fprintf(stderr, "Can't get memory for blocks.\n");
+  mm->start = malloc(sizeof(Block));
+  if (mm->start == NULL) {
+    fprintf(stderr, "Can't get memory for the start.\n");
     return EXIT_FAILURE;
   }
 
-  for (size_t i = 0; i < BLOCK_COUNT; ++i) {
-    mm->blocks[i].free = true;
-    mm->blocks[i].name = NULL;
-  }
+  mm->start->size = size;
+  mm->start->free = true;
+  mm->start->name = NULL;
+  mm->start->next = NULL;
+  mm->start->prev = NULL;
 
   return EXIT_SUCCESS;
 }
 
 void mm_destroy(MemoryManagement* mm) {
-  for (size_t i = 0; i < BLOCK_COUNT; i++) {
-    if (mm->blocks[i].name != NULL) {
-      free(mm->blocks[i].name);
-      mm->blocks[i].name = NULL;
-    }
+  if (mm == NULL) {
+    return;
   }
 
-  free(mm->blocks);
+  Block* current = mm->start;
+  while (current != NULL) {
+    if (current->name != NULL) {
+      free(current->name);
+      current->name = NULL;
+    }
+    current = current->next;
+  }
+
+  mm->start = NULL;
 }
 
-int mm_alloc(MemoryManagement* mm, const char* name, size_t size) {
-  fprintf(stderr, "Not implemented.\n");
+int mm_alloc(MemoryManagement* mm, const char* name, size_t user_size) {
+  fprintf(stderr, "Not implemented: mm_alloc.\n");
   return EXIT_FAILURE;
 }
 
-int mm_realloc(MemoryManagement* mm, const char* name, size_t size) {
-  fprintf(stderr, "Not implemented.\n");
+int mm_realloc(MemoryManagement* mm, const char* name, size_t new_user_size) {
+  fprintf(stderr, "Not implemented: mm_realloc.\n");
   return EXIT_FAILURE;
 }
 
 int mm_free(MemoryManagement* mm, const char* name) {
-  fprintf(stderr, "Not implemented.\n");
+  fprintf(stderr, "Not implemented: mm_free.\n");
   return EXIT_FAILURE;
 }
 
 void mm_print(const MemoryManagement* mm) {
   printf("Memory Management:\n");
-  for (size_t i = 0; i < BLOCK_COUNT; ++i) {
-    if (!mm->blocks[i].free) {
-      printf("Block %zu: Name: %s\n", i, mm->blocks[i].name);
+
+  int i = 0;
+  Block* current = mm->start;
+
+  while (current != NULL) {
+    if (!current->free) {
+      printf("Block: %d, ", i);
+      printf("Name: %s, ", current->name ? current->name : "NULL");
+      printf("Size: %zu\n", current->size);
     }
+
+    i++;
+    current = current->next;
   }
 }
 
@@ -84,7 +98,7 @@ int mm_start(MemoryManagement* mm, const char* filename) {
         command.name = NULL;
       }
       fclose(file);
-      fprintf(stderr, "Can't parse command: %s\n", buffer);
+      fprintf(stderr, "Can't parse command: %s.\n", buffer);
       return EXIT_FAILURE;
     }
 
@@ -94,7 +108,7 @@ int mm_start(MemoryManagement* mm, const char* filename) {
         command.name = NULL;
       }
       fclose(file);
-      fprintf(stderr, "Can't execute command: %s\n", buffer);
+      fprintf(stderr, "Can't execute command: %s.\n", buffer);
       return EXIT_FAILURE;
     }
 
@@ -121,7 +135,36 @@ int mm_execute_command(MemoryManagement* mm, const Command* command) {
       mm_print(mm);
       return EXIT_SUCCESS;
     default:
-      fprintf(stderr, "Unknown command type: %d\n", command->type);
+      fprintf(stderr, "Unknown command type: %d.\n", command->type);
       return EXIT_FAILURE;
   }
+}
+
+Block* mm_find_block(MemoryManagement* mm, size_t requested_total_size) {
+  switch (mm->strategy) {
+    case STRATEGY_FIRST:
+      return mm_find_block_first_fit(mm, requested_total_size);
+    case STRATEGY_BEST:
+      return mm_find_block_best_fit(mm, requested_total_size);
+    case STRATEGY_WORST:
+      return mm_find_block_worst_fit(mm, requested_total_size);
+    default:
+      fprintf(stderr, "Unknown strategy: %d.\n", mm->strategy);
+      return NULL;
+  }
+}
+
+Block* mm_find_block_first_fit(MemoryManagement* mm, size_t size) {
+  fprintf(stderr, "Not implemented: mm_find_block_first_fit.\n");
+  return NULL;
+}
+
+Block* mm_find_block_best_fit(MemoryManagement* mm, size_t size) {
+  fprintf(stderr, "Not implemented: mm_find_block_best_fit.\n");
+  return NULL;
+}
+
+Block* mm_find_block_worst_fit(MemoryManagement* mm, size_t size) {
+  fprintf(stderr, "Not implemented: mm_find_block_worst_fit.\n");
+  return NULL;
 }

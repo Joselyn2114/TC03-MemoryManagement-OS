@@ -47,7 +47,7 @@ int parse_command(char* buffer, Command* command) {
     char* arg3 = strtok(NULL, " \n");
 
     if (arg2 == NULL || arg3 == NULL) {
-      fprintf(stderr, "Bad command format. Expected: <type> <name> <size>\n");
+      fprintf(stderr, "Bad command format. Expected: <type> <name> <size>.\n");
       return EXIT_FAILURE;
     }
 
@@ -64,13 +64,13 @@ int parse_command(char* buffer, Command* command) {
   if (command->type == CMD_FREE) {
     char* arg2 = strtok(NULL, " \n");
     if (arg2 == NULL) {
-      fprintf(stderr, "Bad command format. Expected: <type> <name>\n");
+      fprintf(stderr, "Bad command format. Expected: <type> <name>.\n");
       return EXIT_FAILURE;
     }
 
     command->name = strdup(arg2);
     if (command->name == NULL) {
-      fprintf(stderr, "Can't copy name: %s\n", arg2);
+      fprintf(stderr, "Can't copy name: %s.\n", arg2);
       return EXIT_FAILURE;
     }
 
@@ -105,7 +105,7 @@ int parse_command_type(const char* arg, CommandType* type) {
     return EXIT_SUCCESS;
   }
 
-  fprintf(stderr, "Unknown command type: %s\n", arg);
+  fprintf(stderr, "Unknown command type: %s.\n", arg);
 
   return EXIT_FAILURE;
 }

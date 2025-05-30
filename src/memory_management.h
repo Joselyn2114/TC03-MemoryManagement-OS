@@ -30,4 +30,6 @@ int mm_free(MemoryManagement* mm, size_t index);
 
 void mm_print(const MemoryManagement* mm);
 
+int mm_start(MemoryManagement* mm, const char* filename);
+
 #endif  // MEMORY_MANAGEMENT_H

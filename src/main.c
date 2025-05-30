@@ -24,6 +24,11 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
+  if (mm_start(&mm, argv[1]) != EXIT_SUCCESS) {
+    mm_destroy(&mm);
+    return EXIT_FAILURE;
+  }
+
   mm_destroy(&mm);
 
   return EXIT_SUCCESS;

@@ -76,10 +76,19 @@ int mm_start(MemoryManagement* mm, const char* filename) {
     }
 
     Command command;
+    command.name = NULL;
     if (parse_command(buffer, &command) != EXIT_SUCCESS) {
       fprintf(stderr, "Can't parse command: %s\n", buffer);
+      if (command.name != NULL) {
+        free(command.name);
+      }
       fclose(file);
       return EXIT_FAILURE;
+    }
+
+    if (command.name != NULL) {
+      free(command.name);
+      command.name = NULL;
     }
   }
 

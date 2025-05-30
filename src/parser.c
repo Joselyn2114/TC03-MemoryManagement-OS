@@ -37,6 +37,8 @@ int parse_command(char* buffer, Command* command) {
     return EXIT_FAILURE;
   }
 
+  command->type = type;
+
   if (command->type == CMD_ALLOC || command->type == CMD_REALLOC) {
     char* arg2 = strtok(NULL, " \n");
     char* arg3 = strtok(NULL, " \n");
@@ -45,8 +47,6 @@ int parse_command(char* buffer, Command* command) {
       fprintf(stderr, "Bad command format. Expected: <type> <name> <size>\n");
       return EXIT_FAILURE;
     }
-
-    command->type = type;
 
     command->name = strdup(arg2);
     if (command->name == NULL) {
@@ -66,8 +66,6 @@ int parse_command(char* buffer, Command* command) {
       return EXIT_FAILURE;
     }
 
-    command->type = type;
-
     command->name = strdup(arg2);
     if (command->name == NULL) {
       fprintf(stderr, "Can't copy name: %s\n", arg2);
@@ -78,6 +76,7 @@ int parse_command(char* buffer, Command* command) {
   }
 
   if (command->type == CMD_PRINT) {
+    command->name = NULL;
     return EXIT_SUCCESS;
   }
 

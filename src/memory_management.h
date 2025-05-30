@@ -29,9 +29,20 @@ void mm_destroy(MemoryManagement* mm);
 
 int mm_alloc(MemoryManagement* mm, const char* name, size_t size);
 
+int mm_alloc_split(
+    MemoryManagement* mm, Block* block_to_use, size_t size,
+    size_t save_block_size
+);
+
 int mm_realloc(MemoryManagement* mm, const char* name, size_t size);
 
+int mm_realloc_grow(MemoryManagement* mm, Block* block_to_use, size_t size);
+
+int mm_realloc_shrink(MemoryManagement* mm, Block* block_to_use, size_t size);
+
 int mm_free(MemoryManagement* mm, const char* name);
+
+void mm_free_join(MemoryManagement* mm, Block* block_to_use);
 
 void mm_print(const MemoryManagement* mm);
 

@@ -6,6 +6,8 @@
 #include "memory_management.h"
 #include "parser.h"
 
+#define MEMORY_SIZE 1024 * 1024  // 1 MB
+
 int main(int argc, char** argv) {
   if (argc != 3) {
     fprintf(stderr, "Usage: %s <file> <best|first|worst>.\n", argv[0]);
@@ -19,7 +21,7 @@ int main(int argc, char** argv) {
   }
 
   MemoryManagement mm;
-  if (mm_init(&mm, strategy) != EXIT_SUCCESS) {
+  if (mm_init(&mm, strategy, MEMORY_SIZE) != EXIT_SUCCESS) {
     fprintf(stderr, "Can't init memory management.\n");
     return EXIT_FAILURE;
   }

@@ -40,17 +40,17 @@ void mm_destroy(MemoryManagement* mm) {
   free(mm->blocks);
 }
 
-int mm_alloc(MemoryManagement* mm, size_t size, const char* name) {
+int mm_alloc(MemoryManagement* mm, const char* name, size_t size) {
   fprintf(stderr, "Not implemented.\n");
   return EXIT_FAILURE;
 }
 
-int mm_realloc(MemoryManagement* mm, size_t index, size_t new_size) {
+int mm_realloc(MemoryManagement* mm, const char* name, size_t size) {
   fprintf(stderr, "Not implemented.\n");
   return EXIT_FAILURE;
 }
 
-int mm_free(MemoryManagement* mm, size_t index) {
+int mm_free(MemoryManagement* mm, const char* name) {
   fprintf(stderr, "Not implemented.\n");
   return EXIT_FAILURE;
 }
@@ -88,16 +88,15 @@ int mm_start(MemoryManagement* mm, const char* filename) {
       return EXIT_FAILURE;
     }
 
-    // Print command info
-
-    printf("Command: %s, Name: %s, Size: %zu\n",
-           command.type == CMD_ALLOC     ? "ALLOC"
-           : command.type == CMD_REALLOC ? "REALLOC"
-           : command.type == CMD_FREE    ? "FREE"
-                                         : "PRINT",
-           command.name ? command.name : "NULL", command.size);
-
-    //
+    if (mm_execute_command(mm, &command) != EXIT_SUCCESS) {
+      if (command.name != NULL) {
+        free(command.name);
+        command.name = NULL;
+      }
+      fclose(file);
+      fprintf(stderr, "Can't execute command: %s\n", buffer);
+      return EXIT_FAILURE;
+    }
 
     if (command.name != NULL) {
       free(command.name);
@@ -108,4 +107,21 @@ int mm_start(MemoryManagement* mm, const char* filename) {
   fclose(file);
 
   return EXIT_SUCCESS;
+}
+
+int mm_execute_command(MemoryManagement* mm, const Command* command) {
+  switch (command->type) {
+    case CMD_ALLOC:
+      return mm_alloc(mm, command->name, command->size);
+    case CMD_REALLOC:
+      return mm_realloc(mm, command->name, command->size);
+    case CMD_FREE:
+      return mm_free(mm, command->name);
+    case CMD_PRINT:
+      mm_print(mm);
+      return EXIT_SUCCESS;
+    default:
+      fprintf(stderr, "Unknown command type: %d\n", command->type);
+      return EXIT_FAILURE;
+  }
 }

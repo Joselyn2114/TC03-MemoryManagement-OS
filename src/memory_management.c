@@ -32,16 +32,15 @@ void mm_destroy(MemoryManagement* mm) {
   if (mm == NULL) {
     return;
   }
-
   Block* current = mm->start;
   while (current != NULL) {
-    if (current->name != NULL) {
+    Block* next = current->next;
+    if (current->name) {
       free(current->name);
-      current->name = NULL;
     }
-    current = current->next;
+    free(current);
+    current = next;
   }
-
   mm->start = NULL;
 }
 

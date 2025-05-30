@@ -1,0 +1,167 @@
+# Simulación de fragmentación básica
+ALLOC A1 100
+ALLOC B1 200
+ALLOC C1 150
+FREE B1
+ALLOC D1 50
+PRINT
+# Simulación de coalescing tras liberaciones adyacentes
+ALLOC E1 120
+ALLOC F1 80
+FREE C1
+FREE D1
+ALLOC G1 200
+PRINT
+# Simulación de asignaciones y liberaciones intercaladas
+ALLOC H1 30
+ALLOC I1 60
+ALLOC J1 90
+FREE H1
+ALLOC K1 45
+FREE I1
+ALLOC L1 60
+FREE J1
+PRINT
+# Simulación de fugas de memoria
+ALLOC M1 300
+ALLOC N1 400
+# No liberamos M1
+FREE N1
+PRINT
+# Fragmentación intermedia
+ALLOC O1 25
+ALLOC P1 35
+ALLOC Q1 45
+FREE L1
+FREE O1
+ALLOC R1 50
+ALLOC S1 55
+PRINT
+# Mezcla de cargas pesadas y ligeras
+ALLOC T1 500
+ALLOC U1 100
+FREE U1
+ALLOC V1 200
+ALLOC W1 150
+FREE Q1
+ALLOC X1 80
+PRINT
+# Bloques pequeños y medianos
+ALLOC Y1 10
+ALLOC Z1 15
+ALLOC A2 20
+FREE Y1
+ALLOC B2 12
+FREE Z1
+ALLOC C2 18
+PRINT
+# Grandes asignaciones sucesivas
+ALLOC D2 600
+ALLOC E2 700
+FREE D2
+ALLOC F2 650
+PRINT
+# Patrón aleatorio 1
+ALLOC G2 33
+ALLOC H2 47
+FREE G2
+ALLOC I2 55
+ALLOC J2 63
+FREE H2
+ALLOC K2 72
+FREE I2
+ALLOC L2 81
+PRINT
+# Patrón aleatorio 2
+ALLOC M2 23
+ALLOC N2 37
+FREE M2
+ALLOC O2 44
+FREE N2
+ALLOC P2 51
+ALLOC Q2 59
+FREE O2
+PRINT
+# Simulación intensa de fugas
+ALLOC R2 120
+ALLOC S2 130
+ALLOC T2 140
+# No liberamos ninguno
+PRINT
+# Liberaciones fuera de orden
+ALLOC U2 95
+ALLOC V2 105
+FREE S2
+ALLOC W2 115
+FREE R2
+ALLOC X2 125
+FREE T2
+PRINT
+# Fragmentación avanzada
+ALLOC Y2 5
+ALLOC Z2 10
+ALLOC A3 15
+ALLOC B3 20
+FREE Y2
+FREE A3
+ALLOC C3 25
+ALLOC D3 30
+FREE Z2
+PRINT
+# Mezcla de liberaciones grandes y pequeñas
+ALLOC E3 400
+ALLOC F3 50
+FREE E3
+ALLOC G3 45
+ALLOC H3 35
+FREE F3
+PRINT
+# Asignaciones secuenciales
+ALLOC I3 60
+ALLOC J3 60
+ALLOC K3 60
+ALLOC L3 60
+FREE I3
+FREE J3
+ALLOC M3 120
+PRINT
+# Reuso de etiquetas previas
+ALLOC A1 100
+FREE A1
+ALLOC B1 150
+FREE B1
+ALLOC C1 200
+FREE C1
+PRINT
+# Ráfaga de pequeñas asignaciones
+ALLOC N3 8
+ALLOC O3 8
+ALLOC P3 8
+ALLOC Q3 8
+ALLOC R3 8
+ALLOC S3 8
+FREE N3
+FREE P3
+ALLOC T3 8
+FREE R3
+PRINT
+# Escenario mixto de fugas y liberaciones
+ALLOC U3 250
+ALLOC V3 300
+ALLOC W3 350
+# No liberamos V3 ni W3
+FREE U3
+ALLOC X3 100
+PRINT
+# Ultima ronda de estrés
+ALLOC Y3 512
+ALLOC Z3 256
+ALLOC A4 128
+ALLOC B4 64
+ALLOC C4 32
+FREE B4
+FREE A4
+ALLOC D4 64
+ALLOC E4 96
+FREE Z3
+PRINT

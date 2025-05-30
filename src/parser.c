@@ -2,6 +2,7 @@
 
 #include "parser.h"
 
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -20,6 +21,91 @@ int parse_strategy(const char* arg, StrategyType* strategy) {
     *strategy = STRATEGY_WORST;
     return EXIT_SUCCESS;
   }
+
+  return EXIT_FAILURE;
+}
+
+int parse_command(char* buffer, Command* command) {
+  char* arg1 = strtok(buffer, " \n");
+  if (arg1 == NULL) {
+    fprintf(stderr, "No command.\n");
+    return EXIT_FAILURE;
+  }
+
+  CommandType type;
+  if (parse_command_type(arg1, &type) != EXIT_SUCCESS) {
+    return EXIT_FAILURE;
+  }
+
+  if (command->type == CMD_ALLOC || command->type == CMD_REALLOC) {
+    char* arg2 = strtok(NULL, " \n");
+    char* arg3 = strtok(NULL, " \n");
+
+    if (arg2 == NULL || arg3 == NULL) {
+      fprintf(stderr, "Bad command format. Expected: <type> <name> <size>\n");
+      return EXIT_FAILURE;
+    }
+
+    command->type = type;
+
+    command->name = strdup(arg2);
+    if (command->name == NULL) {
+      fprintf(stderr, "Can't copy name: %s\n", arg2);
+      return EXIT_FAILURE;
+    }
+
+    command->size = strtoul(arg3, NULL, 10);
+
+    return EXIT_SUCCESS;
+  }
+
+  if (command->type == CMD_FREE) {
+    char* arg2 = strtok(NULL, " \n");
+    if (arg2 == NULL) {
+      fprintf(stderr, "Bad command format. Expected: <type> <name>\n");
+      return EXIT_FAILURE;
+    }
+
+    command->type = type;
+
+    command->name = strdup(arg2);
+    if (command->name == NULL) {
+      fprintf(stderr, "Can't copy name: %s\n", arg2);
+      return EXIT_FAILURE;
+    }
+
+    return EXIT_SUCCESS;
+  }
+
+  if (command->type == CMD_PRINT) {
+    return EXIT_SUCCESS;
+  }
+
+  return EXIT_FAILURE;
+}
+
+int parse_command_type(const char* arg, CommandType* type) {
+  if (strcmp(arg, "ALLOC") == 0) {
+    *type = CMD_ALLOC;
+    return EXIT_SUCCESS;
+  }
+
+  if (strcmp(arg, "REALLOC") == 0) {
+    *type = CMD_REALLOC;
+    return EXIT_SUCCESS;
+  }
+
+  if (strcmp(arg, "FREE") == 0) {
+    *type = CMD_FREE;
+    return EXIT_SUCCESS;
+  }
+
+  if (strcmp(arg, "PRINT") == 0) {
+    *type = CMD_PRINT;
+    return EXIT_SUCCESS;
+  }
+
+  fprintf(stderr, "Unknown command type: %s\n", arg);
 
   return EXIT_FAILURE;
 }

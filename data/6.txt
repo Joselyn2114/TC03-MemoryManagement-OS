@@ -1,0 +1,6 @@
+# Memory leak simulation
+ALLOC A 100
+ALLOC B 100
+# Forgetting to free A
+FREE B
+PRINT

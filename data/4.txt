@@ -1,0 +1,7 @@
+# Fragmentation handling
+ALLOC A 100
+ALLOC B 200
+FREE A
+ALLOC C 100
+ALLOC D 100
+PRINT

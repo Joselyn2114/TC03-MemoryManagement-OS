@@ -1,0 +1,3 @@
+# Freeing unallocated block
+FREE X
+PRINT

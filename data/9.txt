@@ -1,0 +1,8 @@
+# Excessive fragmentation with small blocks
+ALLOC A 10
+ALLOC B 10
+ALLOC C 10
+FREE A
+FREE B
+ALLOC D 15
+PRINT

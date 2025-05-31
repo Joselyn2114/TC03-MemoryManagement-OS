@@ -1,0 +1,6 @@
+# Reusing freed space
+ALLOC A 128
+FREE A
+ALLOC B 64
+ALLOC C 64
+PRINT

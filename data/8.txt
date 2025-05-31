@@ -1,0 +1,4 @@
+# Duplicate label allocation
+ALLOC A 100
+ALLOC A 200
+PRINT

@@ -301,11 +301,13 @@ void mm_print(const MemoryManagement* mm) {
   Block* current = mm->start;
 
   while (current != NULL) {
+    printf("Block: %d, ", i);
     if (!current->free) {
-      printf("Block: %d, ", i);
-      printf("Name: %s, ", current->name ? current->name : "NULL");
-      printf("Size: %zu\n", current->size);
+      printf("Name: %s, ", current->name);
+    } else {
+      printf("Free, ");
     }
+    printf("Size: %zu\n", current->size);
 
     i++;
     current = current->next;

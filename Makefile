@@ -1,10 +1,10 @@
 #
 
 PROJECT_ID = memory_management
-ARGS = data/2.txt worst
+ARGS = data/1.txt worst
 
 CC = gcc
-CFLAGS = -Wall -Wextra -g -O0 -I$(SRC_DIR)
+CFLAGS = -I$(SRC_DIR) -Werror -Wall -Wextra
 
 SRC_DIR = src
 BUILD_DIR = build

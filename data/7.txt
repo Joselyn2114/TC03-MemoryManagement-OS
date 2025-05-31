@@ -1,0 +1,6 @@
+# Unexpected reuse causing overlap
+ALLOC A 50
+FREE A
+ALLOC B 25
+ALLOC C 30
+PRINT

@@ -22,6 +22,8 @@ int parse_strategy(const char* arg, StrategyType* strategy) {
     return EXIT_SUCCESS;
   }
 
+  fprintf(stderr, "parse_strategy: Unknown strategy: %s.\n", arg);
+
   return EXIT_FAILURE;
 }
 
@@ -31,7 +33,7 @@ int parse_command(char* buffer, Command* command) {
 
   char* arg1 = strtok(buffer, " \n");
   if (arg1 == NULL) {
-    fprintf(stderr, "No command.\n");
+    fprintf(stderr, "parse_command: No command.\n");
     return EXIT_FAILURE;
   }
 
@@ -47,14 +49,14 @@ int parse_command(char* buffer, Command* command) {
     char* arg3 = strtok(NULL, " \n");
 
     if (arg2 == NULL || arg3 == NULL) {
-      fprintf(stderr, "Bad command format. Expected: <type> <name> <size>.\n");
+      fprintf(stderr, "parse_command: Bad command format.\n");
       return EXIT_FAILURE;
     }
 
     command->size = strtoul(arg3, NULL, 10);
     command->name = strdup(arg2);
     if (command->name == NULL) {
-      fprintf(stderr, "Can't copy name: %s\n", arg2);
+      fprintf(stderr, "parse_command: Can't copy name: %s\n", arg2);
       return EXIT_FAILURE;
     }
 
@@ -64,13 +66,13 @@ int parse_command(char* buffer, Command* command) {
   if (command->type == CMD_FREE) {
     char* arg2 = strtok(NULL, " \n");
     if (arg2 == NULL) {
-      fprintf(stderr, "Bad command format. Expected: <type> <name>.\n");
+      fprintf(stderr, "parse_command: Bad command format.\n");
       return EXIT_FAILURE;
     }
 
     command->name = strdup(arg2);
     if (command->name == NULL) {
-      fprintf(stderr, "Can't copy name: %s.\n", arg2);
+      fprintf(stderr, "parse_command: Can't copy name: %s.\n", arg2);
       return EXIT_FAILURE;
     }
 
@@ -105,7 +107,7 @@ int parse_command_type(const char* arg, CommandType* type) {
     return EXIT_SUCCESS;
   }
 
-  fprintf(stderr, "Unknown command type: %s.\n", arg);
+  fprintf(stderr, "parse_command_type: Unknown command type: %s.\n", arg);
 
   return EXIT_FAILURE;
 }

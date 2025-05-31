@@ -83,30 +83,35 @@ int mm_alloc_split(Block* block_to_use, size_t size) {
   // The size of the block after the split
   size_t rest_size = block_to_use->size - size;
 
-  if (rest_size > sizeof(Block)) {
-    // Create a new block
-    Block* new_block = malloc(sizeof(Block));
-    if (new_block == NULL) {
-      fprintf(stderr, "mm_alloc_split: Can't get memory for the new block.\n");
-      return EXIT_FAILURE;
-    }
-
-    // Init the new block
-    new_block->free = true;
-    new_block->name = NULL;
-    new_block->size = rest_size;
-    new_block->prev = block_to_use;
-    new_block->next = block_to_use->next;
-
-    // Update the current block
-    if (block_to_use->next != NULL) {
-      block_to_use->next->prev = new_block;
-    }
-
-    // Link the new block to the current block
+  // If the rest size is too small to create a new block or is zero
+  // we just use the current block
+  if (rest_size <= sizeof(Block) || rest_size == 0) {
     block_to_use->size = size;
-    block_to_use->next = new_block;
+    return EXIT_SUCCESS;
   }
+
+  // Create a new block
+  Block* new_block = malloc(sizeof(Block));
+  if (new_block == NULL) {
+    fprintf(stderr, "mm_alloc_split: Can't get memory for the new block.\n");
+    return EXIT_FAILURE;
+  }
+
+  // Init the new block
+  new_block->free = true;
+  new_block->name = NULL;
+  new_block->size = rest_size;
+  new_block->prev = block_to_use;
+  new_block->next = block_to_use->next;
+
+  // Update the current block
+  if (block_to_use->next != NULL) {
+    block_to_use->next->prev = new_block;
+  }
+
+  // Link the new block to the current block
+  block_to_use->size = size;
+  block_to_use->next = new_block;
 
   return EXIT_SUCCESS;
 }
@@ -168,7 +173,11 @@ int mm_realloc(MemoryManagement* mm, const char* name, size_t size) {
 int mm_realloc_grow(MemoryManagement* mm, Block* block_to_use, size_t size) {
   Block* next_block = block_to_use->next;
 
-  // If the next block is free and we can grow the current block
+  // If the next block is NULL or not free, we can't grow the block
+  if (next_block == NULL || !next_block->free) {
+    return EXIT_FAILURE;
+  }
+
   bool can_grow = block_to_use->size + next_block->size >= size;
 
   if (next_block != NULL && next_block->free && can_grow) {
@@ -239,9 +248,9 @@ int mm_realloc_shrink(Block* block_to_use, size_t size) {
   // The size of the block after the shrink
   size_t rest_size = block_to_use->size - size;
 
-  // If the rest size is less than or equal to zero, we don't need to do
-  // anything
-  if (rest_size <= 0) {
+  // If the rest size is too small to create a new block or is zero
+  // we just use the current block
+  if (rest_size < sizeof(Block) || rest_size == 0) {
     block_to_use->size = size;
     return EXIT_SUCCESS;
   }
@@ -307,43 +316,25 @@ int mm_free(MemoryManagement* mm, const char* name) {
 }
 
 void mm_free_join(Block* block_to_use) {
-  // If the next block is free, merge it with the current block
-  if (block_to_use->next != NULL && block_to_use->next->free) {
+  // If the next block is free, join it with the current block
+  while (block_to_use->next && block_to_use->next->free) {
     Block* next_block = block_to_use->next;
-
-    // Add the size of the next block to the current block
     block_to_use->size += next_block->size;
-    // Link the current block to the next block's next block
     block_to_use->next = next_block->next;
-
-    // If the next block's next block is not NULL, update the previous pointer
-    if (next_block->next != NULL) {
-      next_block->next->prev = block_to_use;
-    }
-
-    // Free the next block
+    if (next_block->next) next_block->next->prev = block_to_use;
     free(next_block->name);
     free(next_block);
   }
 
-  // If the previous block is free, merge it with the current block
-  if (block_to_use->prev != NULL && block_to_use->prev->free) {
+  // If the previous block is free, join it with the current block
+  while (block_to_use->prev && block_to_use->prev->free) {
     Block* prev_block = block_to_use->prev;
-
-    // Add the size of the current block to the previous block
     prev_block->size += block_to_use->size;
-    // Link the previous block to the current block's next block
     prev_block->next = block_to_use->next;
-
-    // If the current block's next block is not NULL, update the previous
-    // pointer
-    if (block_to_use->next != NULL) {
-      block_to_use->next->prev = prev_block;
-    }
-
-    // Free the current block
+    if (block_to_use->next) block_to_use->next->prev = prev_block;
     free(block_to_use->name);
     free(block_to_use);
+    block_to_use = prev_block;
   }
 }
 

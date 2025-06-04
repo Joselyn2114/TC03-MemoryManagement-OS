@@ -1,4 +1,4 @@
-//
+// memory_management.h
 
 #ifndef MEMORY_MANAGEMENT_H
 #define MEMORY_MANAGEMENT_H
@@ -14,28 +14,27 @@
  *  - free == true  ⇾ un trozo libre de 'size' bytes a partir de 'offset' bytes desde memory_region.
  *  - free == false ⇾ un trozo ocupado con nombre 'name', 'size' bytes, en 'offset' bytes desde memory_region.
  */
-
 typedef struct Block {
-  bool free;
-  char* name;
-  size_t size;
-  size_t offset;     // desplazamiento (en bytes) desde memory_region
-  struct Block* next;
-  struct Block* prev;
+  bool           free;       // true = disponible, false = ocupado
+  char*          name;       // nombre de variable (p.ej. "A", "B", …); NULL si libre
+  size_t         size;       // número de bytes que ocupa este bloque
+  size_t         offset;     // desplazamiento (en bytes) desde memory_region
+  struct Block*  next;       // siguiente bloque en la lista
+  struct Block*  prev;       // bloque anterior en la lista
 } Block;
 
 /**
  * Estructura principal de manejo de memoria:
  *  - strategy: enum { FIRST, BEST, WORST }
- *  - total_size: tamaño total del bloque grande
- *  - memory_region: puntero al bloque grande (void*) que pedimos con malloc()
- *  - start_block: head de la lista doblemente enlazada de Block
+ *  - total_size: tamaño total (en bytes) del bloque grande pedido al SO
+ *  - memory_region: puntero al bloque grande (void*) que se pidió con malloc()
+ *  - start_block: primer nodo de la lista doblemente enlazada de Block
  */
-
 typedef struct {
-  StrategyType strategy;
-  size_t size;
-  Block* start_block;
+  StrategyType strategy;      // estrategia de asignación (FIRST, BEST o WORST)
+  size_t       total_size;    // tamaño total en bytes del bloque “grande”
+  void*        memory_region; // puntero al bloque contiguo reservado con malloc(total_size)
+  Block*       start_block;   // head de la lista (un único bloque libre inicial)
 } MemoryManagement;
 
 /**
@@ -61,7 +60,7 @@ void mm_destroy(MemoryManagement* mm);
  * 
  *  Encuentra un bloque adecuado según strategy, hace split si es necesario,
  *  guarda name en Block, marca free = false, y sobre la región de datos 
- *  correspondiente hace memset con el primer carácter de name para “llenar”.
+ *  correspondiente hace memset con el primer carácter de name.
  */
 int mm_alloc(MemoryManagement* mm, const char* name, size_t size);
 
@@ -82,10 +81,9 @@ int mm_alloc_split(Block* block_to_use, size_t size);
  *  - size: nuevo tamaño deseado.
  *  
  *  Si size == size_actual, no hace nada.
- *  Si size > size_actual, intenta crecer en sitio: 
- *    -> si el siguiente bloque es libre y la suma de ambos >= size, los fusiona (join) y ajusta/ hace split final.
- *    -> si no se puede, hace mm_alloc(...) en otro trozo, copiando el nombre, y deja el bloque viejo libre (simula fuga).
- *  Si size < size_actual, hace mm_realloc_shrink(...) para cortar y crear un bloque libre con el remanente.
+ *  Si size > size_actual, intenta crecer el bloque (fusiones). Si no cabe, simula fuga:
+ *    duplica el bloque en otro lugar y deja el viejo sin liberar.
+ *  Si size < size_actual, achica y crea un bloque libre con el remanente.
  */
 int mm_realloc(MemoryManagement* mm, const char* name, size_t size);
 
@@ -96,8 +94,8 @@ int mm_realloc(MemoryManagement* mm, const char* name, size_t size);
  *  - size: nuevo tamaño
  * 
  *  Intenta fusionar con el siguiente bloque si está libre. 
- *  Si la unión >= size, hace join y split del remanente.
- *  Si no se puede (o next no libre), devuelve EXIT_FAILURE para que el llamador lo trate (fuga).
+ *  Si la suma de ambos >= size, los fusiona y, si sobra, crea un remanente libre.
+ *  Si no se puede crecer en sitio, devuelve EXIT_FAILURE (el llamador hará “fuga”).
  */
 int mm_realloc_grow(MemoryManagement* mm, Block* block_to_use, size_t size);
 
@@ -107,7 +105,6 @@ int mm_realloc_grow(MemoryManagement* mm, Block* block_to_use, size_t size);
  *  - size: tamaño menor al actual
  * 
  *  Corta block_to_use a 'size' bytes, crea un nuevo bloque libre con el remanente.
- *  Rellena (memset) la parte ocupada con el nombre viejo.
  */
 int mm_realloc_shrink(Block* block_to_use, size_t size);
 
@@ -115,9 +112,9 @@ int mm_realloc_shrink(Block* block_to_use, size_t size);
  * mm_free:
  *  - name: nombre de la variable a liberar
  * 
- *  Busca el bloque con ese name. Si no lo encuentra, devuelve error.
- *  Libera su metadata->name, rellena con 0 (opcional), marca free = true, 
- *  y hace mm_free_join(...) para unir con vecinos libres.
+ *  Busca el bloque con ese name. Si no lo encuentra, error.
+ *  Libera su metadata(name), marca free = true, y llama a mm_free_join() 
+ *  para unir bloques libres adyacentes.
  */
 int mm_free(MemoryManagement* mm, const char* name);
 
@@ -125,8 +122,8 @@ int mm_free(MemoryManagement* mm, const char* name);
  * mm_free_join:
  *  - block_to_use: bloque recién liberado
  *  
- *  Si el siguiente bloque está libre, los une en un solo bloque. 
- *  Repite mientras haya bloques libres contiguos adelante o atrás.
+ *  Si el siguiente bloque está libre, fusiona con él. Repite mientras haya bloques libres 
+ *  contiguos adelante o atrás.
  */
 void mm_free_join(Block* block_to_use);
 
@@ -147,7 +144,6 @@ void mm_print(const MemoryManagement* mm);
  *  Abre el archivo, lee línea a línea con fgets,
  *  ignora líneas vacías o que empiezan con '#', llama a parse_command(...)
  *  y luego a mm_execute_command(...). 
- *  Maneja error si parse o execute fallan.
  */
 int mm_start(MemoryManagement* mm, const char* filename);
 
@@ -165,10 +161,10 @@ int mm_execute_command(MemoryManagement* mm, const Command* command);
  *  - mm: estado actual
  *  - requested_size: cuántos bytes queremos
  * 
- *  Despacha a la función concreta segun mm->strategy:
- *    - FIRST → mm_find_block_first_fit
- *    - BEST  → mm_find_block_best_fit
- *    - WORST → mm_find_block_worst_fit
+ *  Despacha a la función concreta según mm->strategy:
+ *    - FIRST -> mm_find_block_first_fit
+ *    - BEST  -> mm_find_block_best_fit
+ *    - WORST -> mm_find_block_worst_fit
  */
 Block* mm_find_block(MemoryManagement* mm, size_t requested_size);
 

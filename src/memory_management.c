@@ -400,8 +400,7 @@ int mm_realloc_grow(MemoryManagement* mm, Block* block_to_use, size_t size) {
     return EXIT_SUCCESS;
   }
 
-  // 3) Si combined_size > size, hacemos shrink para obtener remanente libre:
-  size_t old_size = block_to_use->size;
+
   // Ajustar temporalmente el size a 'size' para la función shrink:
   block_to_use->size = size;
   size_t rest_size = combined_size - size;
@@ -480,7 +479,6 @@ int mm_realloc(MemoryManagement* mm, const char* name, size_t size) {
 
   // 3) Si queremos crecer:
   if (size > block_to_use->size) {
-    size_t old_size = block_to_use->size;
     if (mm_realloc_grow(mm, block_to_use, size) == EXIT_SUCCESS) {
       // mm_realloc_grow ya rellenó con el nombre
       block_to_use->size = size;

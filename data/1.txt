@@ -4,6 +4,7 @@ ALLOC B 200
 FREE A
 ALLOC C 50
 PRINT
+
 # Simulación de fuga de memoria
 ALLOC D 300
 ALLOC E 400

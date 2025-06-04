@@ -1,12 +1,10 @@
-//
-
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "memory_management.h"
 #include "parser.h"
 
-#define MEMORY_SIZE 1024 * 1024  // 1 MB
+#define MEMORY_SIZE (1024 * 1024)  // 1 MB
 
 int main(int argc, char** argv) {
   if (argc != 3) {
@@ -22,7 +20,7 @@ int main(int argc, char** argv) {
 
   MemoryManagement mm;
   if (mm_init(&mm, strategy, MEMORY_SIZE) != EXIT_SUCCESS) {
-    fprintf(stderr, "Can't init memory management.\n");
+    fprintf(stderr, "Error: no se pudo inicializar MemoryManagement.\n");
     return EXIT_FAILURE;
   }
 
@@ -32,6 +30,5 @@ int main(int argc, char** argv) {
   }
 
   mm_destroy(&mm);
-
   return EXIT_SUCCESS;
 }

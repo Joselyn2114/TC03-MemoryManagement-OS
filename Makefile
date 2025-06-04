@@ -1,5 +1,3 @@
-#
-
 PROJECT_ID = memory_management
 ARGS = data/1.txt worst
 

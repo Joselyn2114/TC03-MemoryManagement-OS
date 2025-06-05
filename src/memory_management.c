@@ -302,46 +302,44 @@ int mm_alloc(MemoryManagement* mm, const char* name, size_t size) {
  *    - EXIT_FAILURE solo si no se pudo malloc para metadata (pero en este caso igual hacemos shrink)
  */
 int mm_realloc_shrink(Block* block_to_use, size_t size) {
-  size_t old_size   = block_to_use->size;
-  size_t rest_size  = old_size - size;
+  // Calculamos cuánto espacio sobra si achicamos
+  size_t rest_size = block_to_use->size - size;
 
-  // Si el remanente es demasiado pequeño, simplemente dejamos el bloque  
+  // Si el remanente es demasiado pequeño (<= sizeof(Block)) o cero,
+  // simplemente ajustamos block_to_use->size a 'size' y listo.
   if (rest_size < sizeof(Block) || rest_size == 0) {
     block_to_use->size = size;
-
-    // Rellenamos la parte usada con el nombre
-    memset(
-      (char*)((size_t)0), // placeholder: será rellenado por el llamador
-      0,
-      0
-    );
     return EXIT_SUCCESS;
   }
 
-  // Creamos el nuevo bloque libre (para el remanente):
-  Block* new_block = (Block*) malloc(sizeof(Block));
+  // Creamos un nuevo bloque libre para el remanente
+  Block* new_block = malloc(sizeof(Block));
   if (new_block == NULL) {
-    fprintf(stderr, "mm_realloc_shrink: No se pudo reservar memoria para el remanente.\n");
-    block_to_use->size = size; // Reduce de todos modos
+    fprintf(stderr, "mm_realloc_shrink: No se pudo reservar memoria para nuevo bloque.\n");
+    // Aunque falle malloc, ajustamos de todos modos el tamaño del bloque a 'size'
+    block_to_use->size = size;
     return EXIT_SUCCESS;
   }
 
-  // Inicializamos el bloque remanente:
+  // Inicializamos el bloque libre remanente
   new_block->size   = rest_size;
   new_block->free   = true;
   new_block->name   = NULL;
-  new_block->offset = block_to_use->offset + size; // donde termina el bloque original
+  new_block->offset = block_to_use->offset + size;
   new_block->next   = block_to_use->next;
   new_block->prev   = block_to_use;
 
-  // Ajustamos enlaces:
+  // Ajustamos punteros de la lista doblemente enlazada
   if (block_to_use->next != NULL) {
     block_to_use->next->prev = new_block;
   }
   block_to_use->next = new_block;
 
-  // Ajustamos tamaño del bloque original:
+  // Finalmente ajustamos el tamaño del bloque original
   block_to_use->size = size;
+
+  // ¡Sin memset aquí! El relleno de la zona ocupada
+  // lo hará quien llamó a esta función, es decir, mm_realloc().
 
   return EXIT_SUCCESS;
 }

@@ -64,14 +64,14 @@ Así se puede visualizar la fragmentación interna/externa, detectar fugas y com
    make
 
 
-Manualmente o desde la raiz
-
-mkdir -p build bin
+4. Manualmente o desde la raiz
+'mkdir build'
+'mkdir bin'
 
 # Compilar cada módulo
-gcc -I./src -Werror -Wall -Wextra -c src/parser.c            -o build/parser.o
-gcc -I./src -Werror -Wall -Wextra -c src/memory_management.c -o build/memory_management.o
-gcc -I./src -Werror -Wall -Wextra -c src/main.c              -o build/main.o
+gcc -I./src -Werror -Wall -Wextra -c .\src\parser.c            -o .\build\parser.o
+gcc -I./src -Werror -Wall -Wextra -c .\src\memory_management.c -o .\build\memory_management.o
+gcc -I./src -Werror -Wall -Wextra -c .\src\main.c              -o .\build\main.o
 
 # Enlazar para generar el ejecutable
 gcc build/parser.o build/memory_management.o build/main.o -o bin/memory_management

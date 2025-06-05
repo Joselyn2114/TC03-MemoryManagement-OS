@@ -3,6 +3,11 @@
 Este proyecto implementa un simulador de gestión dinámica de memoria dentro de un bloque contiguo de 1 MB. Permite probar tres estrategias de asignación: **First-Fit**, **Best-Fit** y **Worst-Fit**. El programa lee un archivo de texto con comandos (`ALLOC`, `REALLOC`, `FREE`, `PRINT`) y mantiene una lista enlazada de bloques libres/ocupados, simulando fragmentación, splits, joins y rellenando cada bloque con el nombre de la variable.
 
 ---
+## Autores:
+- Katerine Guzmán Flores
+- Priscilla Jimenez Salgado
+- Esteban Solano Araya
+---
 
 ## Tabla de contenidos
 
